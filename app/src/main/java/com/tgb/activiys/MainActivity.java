@@ -1,18 +1,15 @@
 package com.tgb.activiys;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.RadioButton;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,14 +18,10 @@ import com.tgb.adapter.RecyclerViewAdapter;
 import com.tgb.app.AppProfile;
 import com.tgb.base.BaseActivity;
 import com.tgb.model.Notice;
-import com.tgb.service.ConnectService;
 import com.tgb.service.NoticeService;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
@@ -47,6 +40,12 @@ public class MainActivity extends BaseActivity {
     RecyclerView recyclerView;
     @InjectView(R.id.SwipeRefreshLayout)
     SwipeRefreshLayout swipeRefreshLayout;
+    @InjectView(R.id.rb_notice)
+    RadioButton rb_notice;
+    @InjectView(R.id.rb_chat)
+    RadioButton rb_chat;
+    @InjectView(R.id.rb_me)
+    RadioButton rb_me;
 
     boolean isLoading;
     private List<Notice> data = new ArrayList<Notice>();
@@ -57,7 +56,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notice);
+        setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         initView();
         initData();
@@ -133,6 +132,9 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+        rb_notice.setOnClickListener(new TabBarButton_Click());
+        rb_chat.setOnClickListener(new TabBarButton_Click());
+        rb_me.setOnClickListener(new TabBarButton_Click());
     }
 
 
@@ -166,6 +168,15 @@ public class MainActivity extends BaseActivity {
 
 //        String androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
 //        Log.i("androidId", androidId);
+    }
+
+    private class TabBarButton_Click implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            String tag = v.getTag().toString();
+            Log.i("TabBarButton_Click", tag);
+        }
     }
 
     public Handler handler = new Handler(){
