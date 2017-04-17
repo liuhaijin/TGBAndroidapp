@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,16 +29,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends BaseActivity {
-
 
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
@@ -50,6 +52,7 @@ public class MainActivity extends BaseActivity {
     private List<Notice> data = new ArrayList<Notice>();
     private RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, data);
     private Call<List<Notice>> call;
+    public static final int DEFAULT_TIMEOUT = 5;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,8 +71,13 @@ public class MainActivity extends BaseActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                data.clear();
-                getData();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        data.clear();
+                        getData();
+                    }
+                }, 1000);
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -79,7 +87,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                Log.d("test", "StateChanged = " + newState);
+//                Log.d("test", "StateChanged = " + newState);
 
 
             }
@@ -87,11 +95,11 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                Log.d("test", "onScrolled");
+//                Log.d("test", "onScrolled");
 
                 int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
                 if (lastVisibleItemPosition + 1 == adapter.getItemCount()) {
-                    Log.d("test", "loading executed");
+//                    Log.d("test", "loading executed");
 
                     boolean isRefreshing = swipeRefreshLayout.isRefreshing();
                     if (isRefreshing) {
@@ -104,7 +112,7 @@ public class MainActivity extends BaseActivity {
                             @Override
                             public void run() {
                                 getData();
-                                Log.d("test", "load more completed");
+//                                Log.d("test", "load more completed");
                                 isLoading = false;
                             }
                         }, 1000);
@@ -134,10 +142,22 @@ public class MainActivity extends BaseActivity {
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
 
+        //retrofit底层用的okHttp,所以设置超时还需要okHttp
+        //然后设置5秒超时
+        //其中DEFAULT_TIMEOUT是我这边定义的一个常量
+        //TimeUnit为java.util.concurrent包下的时间单位
+        //TimeUnit.SECONDS这里为秒的单位
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(AppProfile.getBaseAddress)
                 //增加返回值为Gson的支持(以实体类返回)
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
                 .build();
         call = retrofit.create(NoticeService.class).listNotices();
         getData();
@@ -186,6 +206,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onFailure(Call<List<Notice>> call, Throwable t) {
                 Log.i("Notice Throwable", t.toString());
+                swipeRefreshLayout.setRefreshing(false);
+                showToast("服务器开小差啦(⊙ˍ⊙)");
             }
         });
 
