@@ -17,6 +17,7 @@
         android:layout_gravity="center" />
 
     <TextView
+        android:id="@+id/txt_load_tip"
         style="@style/SmallGreyTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

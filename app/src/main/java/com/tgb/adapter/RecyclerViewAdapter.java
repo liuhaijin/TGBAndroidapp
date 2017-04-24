@@ -3,13 +3,17 @@ package com.tgb.adapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tgb.R;
 import com.tgb.model.Notice;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -18,13 +22,20 @@ public class RecyclerViewAdapter extends Adapter<ViewHolder> {
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
+    public static final int FOOTER_LOAD_MORE = 2;
+    public static final int FOOTER_NO_ITEM = 3;
     private Context context;
     private List<Notice> data;
 
+    private int footerType = FOOTER_LOAD_MORE;
 
     public RecyclerViewAdapter(Context context, List data) {
         this.context = context;
         this.data = data;
+    }
+
+    public int getFooterType(){
+        return footerType;
     }
 
     public interface OnItemClickListener {
@@ -60,8 +71,7 @@ public class RecyclerViewAdapter extends Adapter<ViewHolder> {
                     false);
             return new ItemViewHolder(view);
         } else if (viewType == TYPE_FOOTER) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_foot, parent,
-                    false);
+            View view = LayoutInflater.from(context).inflate(R.layout.item_foot, parent, false);
             return new FootViewHolder(view);
         }
         return null;
@@ -93,9 +103,21 @@ public class RecyclerViewAdapter extends Adapter<ViewHolder> {
                     }
                 });
             }
+        } else {
+            Log.i("RecyclerViewAdapter","FootViewHolder");
+            if (footerType == FOOTER_NO_ITEM){
+                ((FootViewHolder) holder).progressBar.setVisibility(View.GONE);
+                ((FootViewHolder) holder).txt_load_tip.setText(R.string.nomore);
+            }else {
+                ((FootViewHolder) holder).progressBar.setVisibility(View.VISIBLE);
+                ((FootViewHolder) holder).txt_load_tip.setText(R.string.loading);
+            }
         }
     }
 
+    public void setFooterType(int footerType){
+        this.footerType = footerType;
+    }
 
     static class ItemViewHolder extends ViewHolder {
 
@@ -113,8 +135,13 @@ public class RecyclerViewAdapter extends Adapter<ViewHolder> {
 
     static class FootViewHolder extends ViewHolder {
 
+        public ProgressBar progressBar;
+        public TextView txt_load_tip;
+
         public FootViewHolder(View view) {
             super(view);
+            progressBar = (ProgressBar) itemView.findViewById(R.id.progressBar);
+            txt_load_tip = (TextView) itemView.findViewById(R.id.txt_load_tip);
         }
     }
 }

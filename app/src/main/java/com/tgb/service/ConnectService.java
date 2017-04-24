@@ -57,7 +57,7 @@ public class ConnectService extends Service {
                 //增加返回值为Gson的支持(以实体类返回)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-        call = retrofit.create(NoticeService.class).listNotices();
+        call = retrofit.create(NoticeService.class).listNotices(-1);
 
         pullDataThread = new Thread(new PullDataRunnable());
         pullDataThread.start();

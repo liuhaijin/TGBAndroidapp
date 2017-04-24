@@ -2,4 +2,5 @@
     <string name="app_name">通告帮</string>
     <string name="loading">加载中…</string>
     <string name="notice">公告</string>
+    <string name="nomore">没有了</string>
 </resources>

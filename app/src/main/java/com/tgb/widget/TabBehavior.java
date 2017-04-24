@@ -42,7 +42,7 @@ public class TabBehavior extends CoordinatorLayout.Behavior{
     @Override
     public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, View child, View target, int dx, int dy, int[] consumed) {
         //dy大于0是向上滚动 小于0是向下滚动
-        Log.i("dy", ""+dy);
+//        Log.i("dy", ""+dy);
         if (dy >=15&&!isAnimate&&child.getVisibility()==View.VISIBLE) {
             hide(child);
         } else if (dy <-15&&!isAnimate&&child.getVisibility()==View.GONE) {
