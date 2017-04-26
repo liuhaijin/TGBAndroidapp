@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/blueapp">
+
+            <ImageButton
+                android:layout_width="16dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="15dp"
+                android:onClick="backOnClick"
+                android:layout_centerVertical="true"
+                android:background="@mipmap/ic_btn_back"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="设置密码"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:paddingLeft="5dp"
+            android:inputType="textPassword"
+            android:background="@drawable/selector_edittext"
+            android:hint="请输入您的密码" />
+
+        <EditText
+            android:id="@+id/password_repeat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:paddingLeft="5dp"
+            android:background="@drawable/selector_edittext"
+            android:inputType="textPassword"
+            android:hint="请重复您的密码" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_register"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="doRegister"
+        android:background="@color/blueapp"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:text="注册" />
+
+</RelativeLayout>
