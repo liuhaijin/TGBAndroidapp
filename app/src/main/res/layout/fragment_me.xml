@@ -23,7 +23,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_margin="5dp"
-                android:src="@mipmap/avatar"/>
+                android:src="@mipmap/default_head"/>
 
             <ImageView
                 android:id="@+id/iv_user_gender"

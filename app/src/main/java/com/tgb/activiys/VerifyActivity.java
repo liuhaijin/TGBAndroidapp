@@ -1,5 +1,6 @@
 package com.tgb.activiys;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,10 +12,10 @@ import android.widget.EditText;
 
 import com.tgb.R;
 import com.tgb.base.BaseActivity;
+import com.tgb.utils.PreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,8 @@ public class VerifyActivity extends BaseActivity {
     Button btn_get_verify_code;
     @InjectView(R.id.btn_next)
     Button btn_next;
+
+    ProgressDialog progressDialog;
 
     Long sendSmsTime;
     Thread smsTimeThread;
@@ -66,9 +69,14 @@ public class VerifyActivity extends BaseActivity {
                                 Log.i("-----key-----"+key, ((HashMap<String,Object>)data).get(key).toString());
                             }
                         }
+                        hideProgressDialog();
+                        PreferencesUtils.putSharePre(VerifyActivity.this, "username", phoneNumber);
+                        Intent intent = new Intent(VerifyActivity.this, RegisterActivity.class);
+                        startActivity(intent);
                     }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
                         //发送验证码成功
                         Log.i("afterEvent","发送验证码成功 "+data.toString());
+                        handler.sendEmptyMessage(VERIFY_CODE_ALREADY_SEND);
                     }else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
                         //返回支持发送验证码的国家列表
                         Log.i("afterEvent","返回支持发送验证码的国家列表");
@@ -82,6 +90,8 @@ public class VerifyActivity extends BaseActivity {
                     }
                 }else{
                     ((Throwable)data).printStackTrace();
+                    hideProgressDialog();
+                    handler.sendEmptyMessage(VERIFY_CODE_INPUT_ERROR);
                 }
             }
         };
@@ -100,6 +110,10 @@ public class VerifyActivity extends BaseActivity {
 
     public void getVerifyCode(View view){
         phoneNumber = et_username.getText().toString();
+        if(phoneNumber == null){
+            showToast("手机号格式错误");
+            return;
+        }
         // 手机号验证规则
         String regEx = "^1[3|4|5|8][0-9]\\d{8}$";
         // 编译正则表达式
@@ -110,7 +124,6 @@ public class VerifyActivity extends BaseActivity {
         // 字符串是否与正则表达式相匹配
         if(matcher.matches()){
             SMSSDK.getVerificationCode("86", phoneNumber);
-            showToast("验证码已发送");
             sendSmsTime = System.currentTimeMillis();
             smsTimeThread = new Thread(new SmsVerificationTimeRunnable());
             smsTimeThread.start();
@@ -121,6 +134,8 @@ public class VerifyActivity extends BaseActivity {
 
     private static final int REFRESH_SMS_VERIFICATION_TIME = 1;
     private static final int FINISH_SMS_VERIFICATION_TIME = 2;
+    private static final int VERIFY_CODE_ALREADY_SEND = 3;
+    private static final int VERIFY_CODE_INPUT_ERROR = 4;
 
     public Handler handler = new Handler(){
         public void handleMessage(Message msg){
@@ -133,6 +148,12 @@ public class VerifyActivity extends BaseActivity {
                 case FINISH_SMS_VERIFICATION_TIME:
                     btn_get_verify_code.setEnabled(true);
                     btn_get_verify_code.setText("获取验证码");
+                    break;
+                case VERIFY_CODE_ALREADY_SEND:
+                    showToast("验证码已发送");
+                    break;
+                case VERIFY_CODE_INPUT_ERROR:
+                    showToast("验证码错误");
                     break;
             }
         }
@@ -148,7 +169,7 @@ public class VerifyActivity extends BaseActivity {
                     int time = (int) (System.currentTimeMillis() - sendSmsTime) / 1000;
                     if(time < 10){
                         msg.what = REFRESH_SMS_VERIFICATION_TIME;
-                        msg.arg1 = time;
+                        msg.arg1 = 10 - time;
                         handler.sendMessage(msg);
                     }else{
                         msg.what = FINISH_SMS_VERIFICATION_TIME;
@@ -168,8 +189,54 @@ public class VerifyActivity extends BaseActivity {
     }
 
     public void backNextClick(View view) {
-        SMSSDK.submitVerificationCode("86", phoneNumber, et_verifyCode.getText().toString());
-//        Intent intent = new Intent(this, RegisterActivity.class);
-//        startActivity(intent);
+        phoneNumber = et_username.getText().toString();
+        if(phoneNumber == null){
+            showToast("手机号格式错误");
+            return;
+        }
+        // 手机号验证规则
+        String regEx = "^1[3|4|5|8][0-9]\\d{8}$";
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(phoneNumber);
+        // 字符串是否与正则表达式相匹配
+        if(!matcher.matches()){
+            showToast("手机号格式错误");
+            return;
+        }
+
+        String verifyCode = et_verifyCode.getText().toString();
+        if(verifyCode == null){
+            showToast("验证码格式错误");
+            return;
+        }
+        // 验证码验证规则
+        regEx = "\\d{4}";
+        // 编译正则表达式
+        pattern = Pattern.compile(regEx);
+        matcher = pattern.matcher(verifyCode);
+        // 字符串是否与正则表达式相匹配
+        if(matcher.matches()) {
+            SMSSDK.submitVerificationCode("86", phoneNumber, verifyCode);
+            showProgressDialog(getResources().getString(R.string.app_name), "验证中...");
+        }else{
+            showToast("验证码格式错误");
+        }
+
+    }
+
+    private void showProgressDialog(String title, String message){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle(title);
+        progressDialog.setMessage(message);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+    }
+
+    private void hideProgressDialog(){
+        if(progressDialog != null){
+            progressDialog.cancel();
+            progressDialog = null;
+        }
     }
 }
