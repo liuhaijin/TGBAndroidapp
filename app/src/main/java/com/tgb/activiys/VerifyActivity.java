@@ -70,7 +70,7 @@ public class VerifyActivity extends BaseActivity {
                             }
                         }
                         hideProgressDialog();
-                        PreferencesUtils.putSharePre(VerifyActivity.this, "username", phoneNumber);
+                        PreferencesUtils.putSharePre("username", phoneNumber);
                         Intent intent = new Intent(VerifyActivity.this, RegisterActivity.class);
                         startActivity(intent);
                     }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){

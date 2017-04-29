@@ -53,6 +53,7 @@ public class RegisterActivity extends BaseActivity {
         // 字符串是否与正则表达式相匹配
         if(matcher.matches()){
             if(et_password_repeat.getText().toString().equals(password)){
+                //register account and put preferences
 
             }
         }else{

@@ -3,4 +3,5 @@
     <string name="loading">加载中…</string>
     <string name="notice">公告</string>
     <string name="nomore">没有了</string>
+    <string name="forget_passward"><u>忘记密码？</u></string>
 </resources>
