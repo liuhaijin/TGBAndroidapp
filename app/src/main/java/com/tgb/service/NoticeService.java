@@ -1,6 +1,7 @@
 package com.tgb.service;
 
 import com.tgb.model.Notice;
+import com.tgb.model.NoticeCustom;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import retrofit2.http.Query;
 
 public interface NoticeService {
     @GET("notice")
-    Call<List<Notice>> listNotices(@Query("start_id") int start_id);
+    Call<List<NoticeCustom>> listNotices(@Query("start_id") int start_id);
 
     @GET("noticeMaxID")
     Call<Integer> getNoticeMaxID();

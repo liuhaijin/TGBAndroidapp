@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tgb.app.AppProfile;
 import com.tgb.model.Notice;
+import com.tgb.model.NoticeCustom;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ConnectService extends Service {
 	
 	private static ConnectService mInstance = null;
     private Thread pullDataThread;
-    private Call<List<Notice>> call;
+    private Call<List<NoticeCustom>> call;
 
     @Override
     public void onCreate() {
@@ -73,18 +74,18 @@ public class ConnectService extends Service {
     public Handler handler = new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
-            Call<List<Notice>> cur_call = call.clone();
-            cur_call.enqueue(new retrofit2.Callback<List<Notice>>() {
+            Call<List<NoticeCustom>> cur_call = call.clone();
+            cur_call.enqueue(new retrofit2.Callback<List<NoticeCustom>>() {
                 @Override
-                public void onResponse(Call<List<Notice>> call, Response<List<Notice>> response) {
-                    List<Notice> list = response.body();
+                public void onResponse(Call<List<NoticeCustom>> call, Response<List<NoticeCustom>> response) {
+                    List<NoticeCustom> list = response.body();
                     for(Notice n : list){
                         Log.i("Notice", n.toString());
                     }
                 }
 
                 @Override
-                public void onFailure(Call<List<Notice>> call, Throwable t) {
+                public void onFailure(Call<List<NoticeCustom>> call, Throwable t) {
                     Log.i("Notice", t.toString());
                 }
             });

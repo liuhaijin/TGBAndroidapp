@@ -20,6 +20,11 @@
 
     <!--TextView-->
 
+    <style name="TitleGreyTextView">
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textSize">@dimen/textSize_title</item>
+    </style>
+
     <style name="NormalTextView">
         <item name="android:textColor">@color/dark</item>
         <item name="android:textSize">@dimen/textSize_normal</item>
@@ -39,4 +44,6 @@
         <item name="android:textColor">@color/grey</item>
         <item name="android:textSize">@dimen/textSize_small</item>
     </style>
+
+    <style name="MIS_NO_ACTIONBAR" parent="Theme.AppCompat.Light.NoActionBar"></style>
 </resources>

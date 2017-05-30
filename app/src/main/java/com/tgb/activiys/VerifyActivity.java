@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.tgb.R;
+import com.tgb.app.AppState;
 import com.tgb.base.BaseActivity;
 import com.tgb.utils.PreferencesUtils;
 
@@ -35,8 +36,6 @@ public class VerifyActivity extends BaseActivity {
     Button btn_get_verify_code;
     @InjectView(R.id.btn_next)
     Button btn_next;
-
-    ProgressDialog progressDialog;
 
     Long sendSmsTime;
     Thread smsTimeThread;
@@ -64,15 +63,10 @@ public class VerifyActivity extends BaseActivity {
                     if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         //用户手机验证码校验成功
                         Log.i("afterEvent","用户手机验证码校验成功");
-                        if(data != null){
-                            for(String key : ((HashMap<String,Object>)data).keySet()){
-                                Log.i("-----key-----"+key, ((HashMap<String,Object>)data).get(key).toString());
-                            }
-                        }
                         hideProgressDialog();
-                        PreferencesUtils.putSharePre("username", phoneNumber);
+                        AppState.user.setUsername(phoneNumber);
                         Intent intent = new Intent(VerifyActivity.this, RegisterActivity.class);
-                        startActivity(intent);
+                        startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
                     }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
                         //发送验证码成功
                         Log.i("afterEvent","发送验证码成功 "+data.toString());
@@ -167,9 +161,9 @@ public class VerifyActivity extends BaseActivity {
                 try {
                     Message msg = Message.obtain();
                     int time = (int) (System.currentTimeMillis() - sendSmsTime) / 1000;
-                    if(time < 10){
+                    if(time < 15){
                         msg.what = REFRESH_SMS_VERIFICATION_TIME;
-                        msg.arg1 = 10 - time;
+                        msg.arg1 = 15 - time;
                         handler.sendMessage(msg);
                     }else{
                         msg.what = FINISH_SMS_VERIFICATION_TIME;
@@ -222,21 +216,21 @@ public class VerifyActivity extends BaseActivity {
         }else{
             showToast("验证码格式错误");
         }
-
     }
 
-    private void showProgressDialog(String title, String message){
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(title);
-        progressDialog.setMessage(message);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
-    }
+    private static final int LOGIN_OR_REGISTER_ACCOUNT = 13;
 
-    private void hideProgressDialog(){
-        if(progressDialog != null){
-            progressDialog.cancel();
-            progressDialog = null;
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+
+            case LOGIN_OR_REGISTER_ACCOUNT:
+                if(resultCode == 1) {
+                    setResult(1);
+                    finish();
+                }
+                break;
         }
     }
 }

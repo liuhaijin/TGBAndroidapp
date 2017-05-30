@@ -22,6 +22,7 @@
         android:orientation="horizontal">
 
         <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_avatar"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_margin="5dp"
@@ -47,13 +48,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="10sp"
-                android:text="2015-12-11 12:00    来自微信助手" />
+                android:text="12:00    来自微信助手" />
         </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
 
         <TextView
             android:id="@+id/tv_more"
             style="@style/SmallGreyTextView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:layout_marginBottom="7dp"
@@ -72,14 +78,18 @@
             app:cardUseCompatPadding="true"
             app:contentPadding="10dp">
 
-            <TextView
-                android:id="@+id/tv_content"
+            <EditText
+                android:id="@+id/et_content"
                 style="@style/NormalTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:textSize="13sp"
-                android:text="北京通告，明天要20个男孩服装要求：西装正装黑蓝衬衫不要条纹，不要格子，身高要求175以上，费用100,加微信《直接发资料和照片》，早上10:40集合，在中关村搜狐大厦，联系人小杰，13552323221.微信电话一个号。" />
+                android:text="北京通告，明天要20个男孩服装要求：西装正装黑蓝衬衫不要条纹，不要格子，身高要求175以上，费用100,加微信《直接发资料和照片》，早上10:40集合，在中关村搜狐大厦，联系人小杰，13552323221.微信电话一个号。"
+                android:background="@null"
+                android:textCursorDrawable="@null"
+                android:editable="false"
+                android:textIsSelectable="true"/>
 
         </android.support.v7.widget.CardView>
     </LinearLayout>

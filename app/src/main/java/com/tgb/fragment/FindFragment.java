@@ -18,10 +18,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tgb.R;
+import com.tgb.adapter.FindAdapter;
 import com.tgb.adapter.NoticeAdapter;
 import com.tgb.app.AppProfile;
-import com.tgb.model.NoticeCustom;
-import com.tgb.service.NoticeService;
+import com.tgb.model.FindCustom;
+import com.tgb.service.FindService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by lenovo on 2017/4/17.
  */
 
-public class NoticeFragment extends Fragment {
+public class FindFragment extends Fragment {
+
 
     @InjectView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -47,8 +49,8 @@ public class NoticeFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
 
     boolean isLoading;
-    private List<NoticeCustom> data = new ArrayList<NoticeCustom>();
-    private NoticeAdapter adapter;
+    private List<FindCustom> data = new ArrayList();
+    private FindAdapter adapter;
     private Retrofit retrofit;
     public static final int DEFAULT_TIMEOUT = 5;
 
@@ -56,7 +58,7 @@ public class NoticeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_notice, container);
+        View view = inflater.inflate(R.layout.fragment_find, container);
         ButterKnife.inject(this, view);
         initView();
         initData();
@@ -76,7 +78,7 @@ public class NoticeFragment extends Fragment {
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new NoticeAdapter(getActivity(), data);
+        adapter = new FindAdapter(getActivity(), data);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -112,7 +114,7 @@ public class NoticeFragment extends Fragment {
                             adapter.notifyItemRemoved(adapter.getItemCount());
                             return;
                         }
-                        getData(data.get(data.size()-1).getIdNotice()-1);
+                        getData(data.get(data.size()-1).getIdFind()-1);
                         isLoading = false;
                     }
                 }
@@ -120,7 +122,7 @@ public class NoticeFragment extends Fragment {
         });
 
         //添加点击事件
-        adapter.setOnItemClickListener(new NoticeAdapter.OnItemClickListener() {
+        adapter.setOnItemClickListener(new FindAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 Log.d("test", "item position = " + position);
@@ -187,12 +189,12 @@ public class NoticeFragment extends Fragment {
             }
         });
 
-        Call call = retrofit.create(NoticeService.class).listNotices(start_id);
-        call.enqueue(new retrofit2.Callback<List<NoticeCustom>>() {
+        Call call = retrofit.create(FindService.class).listFinds(start_id);
+        call.enqueue(new retrofit2.Callback<List<FindCustom>>() {
             @Override
-            public void onResponse(Call<List<NoticeCustom>> call, Response<List<NoticeCustom>> response) {
+            public void onResponse(Call<List<FindCustom>> call, Response<List<FindCustom>> response) {
                 if(response.body() == null){
-                    Log.i("Notice", "reponse is null");
+                    Log.i("Find", "reponse is null");
                     adapter.setFooterType(NoticeAdapter.FOOTER_NO_ITEM);
                 }else{
                     adapter.setFooterType(NoticeAdapter.FOOTER_LOAD_MORE);
@@ -204,7 +206,7 @@ public class NoticeFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<NoticeCustom>> call, Throwable t) {
+            public void onFailure(Call<List<FindCustom>> call, Throwable t) {
                 Log.i("Notice Throwable", t.toString());
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(getActivity(), "服务器开小差啦(⊙ˍ⊙)", Toast.LENGTH_SHORT).show();
@@ -212,4 +214,5 @@ public class NoticeFragment extends Fragment {
         });
 
     }
+
 }

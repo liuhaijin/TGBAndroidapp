@@ -17,6 +17,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 repositories{
@@ -37,7 +42,12 @@ dependencies {
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
-    compile 'com.squareup.retrofit2:converter-scalars:2.0.0-beta4'//ConverterFactory的String依赖包
+    compile 'com.squareup.retrofit2:converter-scalars:2.0.0-beta4' //ConverterFactory的String依赖包
     compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile name:'SMSSDK-2.1.4',ext:'aar'
+    compile name: 'SMSSDK-2.1.4', ext: 'aar'
+    compile 'com.github.bumptech.glide:glide:3.7.0' //图片缓存框架
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile files('libs/BaiduLBS_Android.jar')
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.github.florent37:singledateandtimepicker:1.1.4' //日期选择
 }

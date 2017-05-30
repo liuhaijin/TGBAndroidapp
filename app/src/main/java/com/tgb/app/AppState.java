@@ -1,11 +1,11 @@
 package com.tgb.app;
 
+import com.tgb.model.User;
+
 public class AppState {
 
-	public static boolean isLogin;
+	public static boolean isLogin = false;
 
-	public static String username;
-	public static String password;
-	public static boolean gender;
+	public static User user = new User();
 
 }

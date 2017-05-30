@@ -8,4 +8,11 @@
     <dimen name="textSize_normal">16sp</dimen>
     <dimen name="textSize_small">14sp</dimen>
 
+    <dimen name="textSize_info_large">15sp</dimen>
+    <dimen name="textSize_info_small">13sp</dimen>
+
+    <dimen name="mis_image_size">120dp</dimen>
+    <dimen name="mis_space_size">2dp</dimen>
+    <dimen name="mis_folder_cover_size">72dp</dimen>
+
 </resources>
