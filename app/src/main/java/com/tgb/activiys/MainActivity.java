@@ -1,26 +1,36 @@
 package com.tgb.activiys;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.tgb.R;
+import com.tgb.app.AppProfile;
 import com.tgb.app.AppState;
 import com.tgb.base.BaseActivity;
 import com.tgb.fragment.FindFragment;
+import com.tgb.fragment.FindMessage;
 import com.tgb.fragment.MeFragment;
+import com.tgb.fragment.MeMessage;
 import com.tgb.fragment.NoticeFragment;
 
 import java.util.LinkedList;
@@ -28,6 +38,9 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import ezy.boost.update.IUpdateParser;
+import ezy.boost.update.UpdateInfo;
+import ezy.boost.update.UpdateManager;
 
 public class MainActivity extends BaseActivity {
 
@@ -50,7 +63,7 @@ public class MainActivity extends BaseActivity {
     @InjectView(R.id.arraw_fifter)
     ImageView arrow_filter;
 
-
+    private String currentTag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,9 +71,27 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         initView();
+
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            UpdateManager.create(this)
+                    .setUrl(AppProfile.getBaseAddress + "app/checkUpdateInfo?version=" + versionName)
+                    .setParser(new IUpdateParser() {
+                        @Override
+                        public UpdateInfo parse(String source) throws Exception {
+                            Log.i("parse", source);
+                            Gson gson = new Gson();
+                            UpdateInfo ui = gson.fromJson(source, UpdateInfo.class);
+                            return ui;
+                        }
+                    }).check();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initView() {
+
         setSupportActionBar(toolbar);
 
         rb_notice.setOnClickListener(new TabBarButton_Click());
@@ -102,16 +133,31 @@ public class MainActivity extends BaseActivity {
     }
 
     public void releaseOnClick(View view){
-//        new AlertDialog.Builder(this)
-//                .setTitle("通告帮")
-//                .setMessage("公测版暂未开放发布通告功能，如有问题请联系邮箱1007705984@qq.com")
-//                .setNegativeButton("确定", null).show();
-        if(AppState.isLogin) {
-            Intent intent = new Intent(this, ImageSelectorMainActivity.class);
-            startActivity(intent);
-        }else{
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+        switch (currentTag) {
+            case "notice":
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
+
+            case "chat":
+                if(AppState.isLogin) {
+                    Intent intent = new Intent(this, ImageSelectorMainActivity.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                break;
+
+            case "me":
+                if(AppState.isLogin) {
+                    Intent intent = new Intent(this, CoverActivity.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(this, LoginActivity.class);
+                    startActivity(intent);
+                }
+                break;
+
         }
     }
 
@@ -125,14 +171,14 @@ public class MainActivity extends BaseActivity {
                 nFragment = fragment_notice;
                 tv_title.setText("通告帮");
                 ll_filter.setVisibility(View.INVISIBLE);
-                releaseText = "发布";
+                releaseText = "搜索";
                 break;
 
             case "chat":
                 nFragment = fragment_chat;
                 tv_title.setText("发现");
                 ll_filter.setVisibility(View.VISIBLE);
-                releaseText = "✚";
+                releaseText = " ✚ ";
                 break;
 
             case "me":
@@ -171,8 +217,20 @@ public class MainActivity extends BaseActivity {
         }
 
         mCurrentFragment = nFragment;
+        currentTag = tag;
 
         fragmentTransaction.commit();
+
+        if(tag.equals("chat") && AppState.isFirstLoad){
+            FindMessage fm = (FindMessage) mCurrentFragment;
+            fm.loadData(0);
+            AppState.isFirstLoad = false;
+        }
+
+        if(tag.equals("me")){
+            MeMessage mm = (MeMessage) mCurrentFragment;
+            mm.loadNew();
+        }
 
     }
 
@@ -202,6 +260,8 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 Log.i("popupWindowView","tv_filter_all");
                 tv_filter.setText("所有人");
+                FindMessage fm = (FindMessage) mCurrentFragment;
+                fm.loadData(0);
                 hidefilterPopupWindow();
             }
         });
@@ -210,6 +270,8 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 Log.i("popupWindowView","tv_filter_me");
                 tv_filter.setText("我的关注");
+                FindMessage fm = (FindMessage) mCurrentFragment;
+                fm.loadData(1);
                 hidefilterPopupWindow();
             }
         });
@@ -232,4 +294,15 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this).setTitle("退出通告帮？")
+            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            }).setPositiveButton("取消", null).show();
+    }
 }

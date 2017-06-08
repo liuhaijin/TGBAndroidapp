@@ -66,10 +66,11 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_focusNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:text="11"
+                android:text="0"
                 android:textColor="@color/dark"/>
 
             <TextView
@@ -88,30 +89,59 @@
             android:layout_marginBottom="8dp"
             android:background="@color/line"/>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_fans"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/selector_normal"
-            android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/ll_fans_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:text="141"
-                android:textColor="@color/dark"/>
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="粉丝"
-                android:textSize="12sp"/>
+                <TextView
+                    android:id="@+id/tv_fansNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:text="0"
+                    android:textColor="@color/dark"/>
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="粉丝"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_red_dot"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:visibility="gone"
+                android:layout_alignTop="@id/ll_fans_text"
+                android:layout_toEndOf="@id/ll_fans_text"
+                android:background="@drawable/circle">
+
+                <TextView
+                    android:id="@+id/tv_new_fans"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textSize="10sp"
+                    android:textColor="@color/white"
+                    android:text="3"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
         <View
             android:layout_width="1dp"
@@ -130,10 +160,11 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_findNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
-                android:text="721"
+                android:text="0"
                 android:textColor="@color/dark"/>
 
             <TextView
@@ -246,6 +277,7 @@
                     style="@style/SmallGreyTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:maxEms="15"
                     android:layout_alignParentEnd="true"
                     android:textSize="@dimen/textSize_info_small"
                     android:text="这个人很懒，什么都没写"/>

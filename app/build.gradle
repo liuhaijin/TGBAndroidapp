@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 24
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,6 +27,9 @@ android {
 repositories{
     flatDir{
         dirs 'libs' //就是你放aar的目录地址
+    }
+    maven {
+        url "https://jitpack.io"
     }
 }
 
@@ -50,4 +53,6 @@ dependencies {
     compile files('libs/BaiduLBS_Android.jar')
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.github.florent37:singledateandtimepicker:1.1.4' //日期选择
+    compile 'com.github.czy1121:update:1.1.1' //应用更新
+    compile 'com.github.mancj:MaterialSearchBar:0.7'
 }

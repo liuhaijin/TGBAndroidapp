@@ -44,6 +44,8 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.inject(this);
+        et_username.setText(PreferencesUtils.getSharePreStr("username"));
+        et_password.setText(PreferencesUtils.getSharePreStr("password"));
     }
 
     public void loginAccount(View view){
@@ -124,6 +126,11 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void registerAccount(View view){
+        Intent intent = new Intent(this, VerifyActivity.class);
+        startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
+    }
+
+    public void forgetPassword(View view){
         Intent intent = new Intent(this, VerifyActivity.class);
         startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
     }

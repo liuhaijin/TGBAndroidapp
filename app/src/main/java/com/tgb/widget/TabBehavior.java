@@ -42,7 +42,7 @@ public class TabBehavior extends CoordinatorLayout.Behavior{
     @Override
     public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, View child, View target, int dx, int dy, int[] consumed) {
         //dy大于0是向上滚动 小于0是向下滚动
-//        Log.i("dy", ""+dy);
+        Log.i("dy", ""+dy);
         if (dy >=15&&!isAnimate&&child.getVisibility()==View.VISIBLE) {
             hide(child);
         } else if (dy <-15&&!isAnimate&&child.getVisibility()==View.GONE) {
@@ -52,7 +52,10 @@ public class TabBehavior extends CoordinatorLayout.Behavior{
 
     //隐藏时的动画
     private void hide(final View view) {
-        ViewPropertyAnimator animator = view.animate().translationY(viewY).setInterpolator(INTERPOLATOR).setDuration(350);
+        ViewPropertyAnimator animator = view.animate()
+                .translationY(viewY)
+                .setInterpolator(INTERPOLATOR)
+                .setDuration(350);
 
         animator.setListener(new Animator.AnimatorListener() {
             @Override
@@ -80,7 +83,10 @@ public class TabBehavior extends CoordinatorLayout.Behavior{
 
     //显示时的动画
     private void show(final View view) {
-        ViewPropertyAnimator animator = view.animate().translationY(0).setInterpolator(INTERPOLATOR).setDuration(350);
+        ViewPropertyAnimator animator = view.animate()
+                .translationY(0)
+                .setInterpolator(INTERPOLATOR)
+                .setDuration(350);
         animator.setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {

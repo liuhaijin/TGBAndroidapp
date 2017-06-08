@@ -92,9 +92,7 @@ public class RegisterActivity extends BaseActivity {
                     @Override
                     public void onResponse(Call call, Response response) {
                         Log.i("response.code", response.code()+"");
-                        if(response.code() == 409){
-                            showToast("手机号已存在，请登录或重新注册");
-                        }else if(response.code() == 201){
+                        if(response.code() == 409 || response.code() == 201){
                             showToast("注册成功");
                             PreferencesUtils.putSharePre("username", AppState.user.getUsername());
                             PreferencesUtils.putSharePre("password", AppState.user.getPassword());

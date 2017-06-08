@@ -153,6 +153,8 @@ public class VerifyActivity extends BaseActivity {
         }
     };
 
+    private final int WAIT_CODE_MESSAGE_TIME = 30;
+
     private class SmsVerificationTimeRunnable implements Runnable {
 
         @Override
@@ -161,9 +163,9 @@ public class VerifyActivity extends BaseActivity {
                 try {
                     Message msg = Message.obtain();
                     int time = (int) (System.currentTimeMillis() - sendSmsTime) / 1000;
-                    if(time < 15){
+                    if(time < WAIT_CODE_MESSAGE_TIME){
                         msg.what = REFRESH_SMS_VERIFICATION_TIME;
-                        msg.arg1 = 15 - time;
+                        msg.arg1 = WAIT_CODE_MESSAGE_TIME - time;
                         handler.sendMessage(msg);
                     }else{
                         msg.what = FINISH_SMS_VERIFICATION_TIME;

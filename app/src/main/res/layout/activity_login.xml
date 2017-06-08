@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginStart="15dp"
-            android:autoLink="email"
+            android:onClick="forgetPassword"
             android:text="忘记密码？"/>
 
         <LinearLayout

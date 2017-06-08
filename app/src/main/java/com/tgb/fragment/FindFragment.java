@@ -1,6 +1,7 @@
 package com.tgb.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,9 +19,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tgb.R;
+import com.tgb.activiys.LoginActivity;
 import com.tgb.adapter.FindAdapter;
 import com.tgb.adapter.NoticeAdapter;
 import com.tgb.app.AppProfile;
+import com.tgb.app.AppState;
 import com.tgb.model.FindCustom;
 import com.tgb.service.FindService;
 
@@ -40,7 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by lenovo on 2017/4/17.
  */
 
-public class FindFragment extends Fragment {
+public class FindFragment extends Fragment implements FindMessage {
 
 
     @InjectView(R.id.recyclerView)
@@ -53,6 +56,8 @@ public class FindFragment extends Fragment {
     private FindAdapter adapter;
     private Retrofit retrofit;
     public static final int DEFAULT_TIMEOUT = 5;
+
+    private int type = 0;
 
     @Nullable
     @Override
@@ -73,7 +78,7 @@ public class FindFragment extends Fragment {
             @Override
             public void onRefresh() {
                 data.clear();
-                getData(-1);
+                getData(type, -1);
             }
         });
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -114,23 +119,15 @@ public class FindFragment extends Fragment {
                             adapter.notifyItemRemoved(adapter.getItemCount());
                             return;
                         }
-                        getData(data.get(data.size()-1).getIdFind()-1);
-                        isLoading = false;
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                getData(type, data.get(data.size()-1).getIdFind()-1);
+                                isLoading = false;
+                            }
+                        }, 1000);
                     }
                 }
-            }
-        });
-
-        //添加点击事件
-        adapter.setOnItemClickListener(new FindAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Log.d("test", "item position = " + position);
-            }
-
-            @Override
-            public void onItemLongClick(View view, int position) {
-
             }
         });
     }
@@ -180,7 +177,7 @@ public class FindFragment extends Fragment {
     /**
      * 获取测试数据
      */
-    private void getData(int start_id) {
+    private void getData(int type, int start_id) {
 
         swipeRefreshLayout.post(new Runnable() {
             @Override
@@ -189,7 +186,25 @@ public class FindFragment extends Fragment {
             }
         });
 
-        Call call = retrofit.create(FindService.class).listFinds(start_id);
+        int uid = -1;
+        //默认为所有人，未登录
+        Call call = retrofit.create(FindService.class).listFinds(uid, start_id);
+
+        if(type == 1){//我的关注
+            if(AppState.isLogin){//已登录
+                uid = AppState.user.getIdUser();
+                call = retrofit.create(FindService.class).listMyFollows(uid, start_id);
+            }else{//未登录
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        }else{//所有人
+            if(AppState.isLogin){//已登录
+                uid = AppState.user.getIdUser();
+                call = retrofit.create(FindService.class).listFinds(uid, start_id);
+            }
+        }
+
         call.enqueue(new retrofit2.Callback<List<FindCustom>>() {
             @Override
             public void onResponse(Call<List<FindCustom>> call, Response<List<FindCustom>> response) {
@@ -199,6 +214,9 @@ public class FindFragment extends Fragment {
                 }else{
                     adapter.setFooterType(NoticeAdapter.FOOTER_LOAD_MORE);
                     data.addAll(response.body());
+                    for(FindCustom fc : response.body()){
+                        Log.i("FindCustom", fc.toString());
+                    }
                 }
                 adapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
@@ -215,4 +233,10 @@ public class FindFragment extends Fragment {
 
     }
 
+    @Override
+    public void loadData(int type) {
+        this.type = type;
+        data.clear();
+        getData(type, -1);
+    }
 }

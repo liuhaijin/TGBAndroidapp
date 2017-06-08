@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tgb.R;
@@ -30,6 +31,8 @@ import com.tgb.activiys.MyFindActivity;
 import com.tgb.app.AppProfile;
 import com.tgb.app.AppState;
 import com.tgb.model.User;
+import com.tgb.model.UserInfo;
+import com.tgb.service.FollowService;
 import com.tgb.service.UserService;
 import com.tgb.utils.PreferencesUtils;
 
@@ -48,7 +51,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by lenovo on 2017/4/17.
  */
 
-public class MeFragment extends Fragment {
+public class MeFragment extends Fragment implements MeMessage{
 
     //头像，性别，昵称
     @InjectView(R.id.iv_user_avatar)
@@ -70,10 +73,22 @@ public class MeFragment extends Fragment {
     //关注，粉丝，动态
     @InjectView(R.id.ll_focus)
     LinearLayout ll_focus;
+    @InjectView(R.id.tv_focusNum)
+    TextView tv_focusNum;
+
     @InjectView(R.id.ll_fans)
-    LinearLayout ll_fans;
+    RelativeLayout ll_fans;
+    @InjectView(R.id.tv_fansNum)
+    TextView tv_fansNum;
+    @InjectView(R.id.rl_red_dot)
+    RelativeLayout rl_red_dot;
+    @InjectView(R.id.tv_new_fans)
+    TextView tv_new_fans;
+
     @InjectView(R.id.ll_find)
     LinearLayout ll_find;
+    @InjectView(R.id.tv_findNum)
+    TextView tv_findNum;
 
 
 
@@ -98,6 +113,8 @@ public class MeFragment extends Fragment {
 
     public static final int DEFAULT_TIMEOUT = 5;
     Retrofit retrofit;
+
+    private int new_fans_num = 0;
 
     @Nullable
     @Override
@@ -164,8 +181,24 @@ public class MeFragment extends Fragment {
             public void onClick(View v) {
                 if(AppState.isLogin) {
                     Intent intent = new Intent(getActivity(), FollowActivity.class);
-                    intent.putExtra("title", "我的关注");
-                    startActivity(intent);
+                    intent.putExtra("followType", true);
+                    startActivityForResult(intent, FOLLOW_DATA_CHANGE);
+                }else{
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
+                }
+            }
+        });
+
+        ll_fans.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(AppState.isLogin) {
+                    Intent intent = new Intent(getActivity(), FollowActivity.class);
+                    intent.putExtra("followType", false);
+                    intent.putExtra("new_fans_num", new_fans_num);
+                    startActivityForResult(intent, FOLLOW_DATA_CHANGE);
+                    new_fans_num = 0;
                 }else{
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                     startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
@@ -177,7 +210,7 @@ public class MeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(AppState.isLogin) {
-                    startActivity(new Intent(getActivity(), MyFindActivity.class));
+                    startActivityForResult(new Intent(getActivity(), MyFindActivity.class), FOLLOW_DATA_CHANGE);
                 }else{
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                     startActivityForResult(intent, LOGIN_OR_REGISTER_ACCOUNT);
@@ -210,7 +243,10 @@ public class MeFragment extends Fragment {
                         if(AppState.user.getAvatarPic() == null){
                             iv_user_avatar.setImageResource(R.mipmap.avatar);
                         }else{
-                            Glide.with(MeFragment.this).load(AppProfile.getBaseAddress + "/user/getPic/" + AppState.user.getAvatarPic()).into(iv_user_avatar);
+                            Glide.with(MeFragment.this)
+                                    .load(AppProfile.getBaseAddress + "/user/getPic/" + AppState.user.getAvatarPic())
+                                    .error(R.mipmap.avatar)
+                                    .into(iv_user_avatar);
                         }
 
                         iv_user_gender.setImageResource(AppState.user.getGender() ? R.mipmap.ic_profile_male : R.mipmap.ic_profile_female);
@@ -222,6 +258,14 @@ public class MeFragment extends Fragment {
                         tv_wechat.setText(AppState.user.getWechat() == null ? "未设置" : AppState.user.getWechat());
 
                         tv_signature.setText(AppState.user.getSignature().equals("") ? "这个人很懒，什么都没有写" : AppState.user.getSignature());
+
+                        int localFollowNum = PreferencesUtils.getSharePreInt("followNum");
+                        int localFansNum = PreferencesUtils.getSharePreInt("fansNum");
+                        int localFindsNum = PreferencesUtils.getSharePreInt("findNum");
+
+                        tv_focusNum.setText(localFollowNum+"");
+                        tv_fansNum.setText(localFansNum+"");
+                        tv_findNum.setText(localFindsNum+"");
 
                     }else{
                         PreferencesUtils.putSharePre("isLogin", false);
@@ -289,6 +333,7 @@ public class MeFragment extends Fragment {
     private static final int EDIT_MAIN_INFO = 11;
     private static final int EDIT_NORMAL_INFO = 12;
     private static final int LOGIN_OR_REGISTER_ACCOUNT = 13;
+    private static final int FOLLOW_DATA_CHANGE = 14;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -310,7 +355,96 @@ public class MeFragment extends Fragment {
                     initView(true, "正在登录...");
                 }
                 break;
+            case FOLLOW_DATA_CHANGE:
+                loadNew();
+                break;
         }
+    }
+
+    @Override
+    public void loadNew() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadNewestUserInfo();
+            }
+        }, 500);
+    }
+
+    public void loadNewestUserInfo(){//获取用户最新关注，粉丝，动态统计，并更新UI
+
+        if(!AppState.isLogin){//未登录取消
+            return;
+        }
+
+        int DEFAULT_TIMEOUT = 5;
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(AppProfile.getBaseAddress)
+                //增加返回值为Gson的支持(以实体类返回)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
+        Call<UserInfo> call = retrofit.create(UserService.class).getUserInfo(AppState.user.getIdUser());
+
+        call.enqueue(new retrofit2.Callback<UserInfo>() {
+            @Override
+            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+                Log.i("onResponse", response.code()+"");
+                if(response.code() == 200){
+                    Log.i("UserInfo", "get newest info");
+                    int localFollowNum = PreferencesUtils.getSharePreInt("followNum");
+                    int localFansNum = PreferencesUtils.getSharePreInt("fansNum");
+                    int localFindsNum = PreferencesUtils.getSharePreInt("findNum");
+
+                    int remoteFollowNum = response.body().getFollowNum();
+                    int remoteFansNum = response.body().getFansNum();
+                    int remoteFindsNum = response.body().getFindNum();
+
+                    if(remoteFollowNum != localFollowNum){
+                        tv_focusNum.setText(remoteFollowNum+"");
+                        PreferencesUtils.putSharePre("followNum", remoteFollowNum);
+                    }else{
+                        tv_focusNum.setText(localFollowNum+"");
+                    }
+
+                    if(remoteFansNum > localFansNum){
+                        rl_red_dot.setVisibility(View.VISIBLE);
+                        new_fans_num = remoteFansNum - localFansNum;
+                        tv_new_fans.setText(new_fans_num + "");
+                        PreferencesUtils.putSharePre("fansNum", remoteFansNum);
+                        tv_fansNum.setText(remoteFansNum+"");
+                    }else if(remoteFansNum < localFansNum){
+                        rl_red_dot.setVisibility(View.GONE);
+                        PreferencesUtils.putSharePre("fansNum", remoteFansNum);
+                        tv_fansNum.setText(remoteFansNum+"");
+                    }else{
+                        tv_fansNum.setText(localFansNum+"");
+                        rl_red_dot.setVisibility(View.GONE);
+                    }
+
+                    if(remoteFindsNum != localFindsNum){
+                        PreferencesUtils.putSharePre("findNum", remoteFindsNum);
+                        tv_findNum.setText(remoteFindsNum+"");
+                    }else{
+                        tv_findNum.setText(localFindsNum+"");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserInfo> call, Throwable t) {
+                Log.i("Notice Throwable", t.toString());
+                Toast.makeText(getActivity(), "服务器开小差啦(⊙ˍ⊙)", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private class InfoOnClickListener implements View.OnClickListener {

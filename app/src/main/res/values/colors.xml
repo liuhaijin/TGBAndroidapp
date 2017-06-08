@@ -8,14 +8,21 @@
     <color name="blueStatus">#1680E2</color>
 
     <color name="white">#FFFFFFFF</color>
+    <color name="white_bg">#44FFFFFF</color>
+    <color name="white_text">#88FFFFFF</color>
     <color name="dark">#424242</color>
+    <color name="dark_text">#aa000000</color>
+    <color name="dark_bg">#33000000</color>
     <color name="red">#FFD4212A</color>
     <color name="grey">#8C8C8C</color>
     <color name="line">#EEEEEE</color>
     <color name="background">#F9F9FA</color>
 
     <color name="greyBackground">#FFCFCFCF</color>
+    <color name="greyFollow">#888888</color>
+
     <color name="blueapp">#3f51b5</color>
+    <color name="vip">#eccb3b</color>
 
     <color name="mis_actionbar_color">#21282C</color>
 </resources>

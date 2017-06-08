@@ -53,6 +53,9 @@
         <activity android:name=".activiys.ViewImageActivity"/> //发现查看大图
         <activity android:name=".activiys.MyFindActivity" android:screenOrientation="portrait"/>
         <activity android:name=".activiys.FollowActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activiys.CoverActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activiys.OtherFindActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activiys.SearchActivity" android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

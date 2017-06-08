@@ -33,6 +33,7 @@
                     android:id="@+id/ll_fifter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_centerInParent="true"
                     android:visibility="visible"
                     android:orientation="horizontal">
@@ -48,7 +49,7 @@
                     <ImageView
                         android:id="@+id/arraw_fifter"
                         android:layout_width="13dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="13dp"
                         android:layout_marginStart="3dp"
                         android:src="@mipmap/fifter_selector"/>
 
@@ -57,12 +58,14 @@
                 <TextView
                     android:id="@+id/tv_release"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="20dp"
-                    android:gravity="end"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:gravity="center"
                     android:onClick="releaseOnClick"
+                    android:background="@drawable/selector_text_button"
                     android:text="发布"
                     android:textColor="@color/white"/>
 

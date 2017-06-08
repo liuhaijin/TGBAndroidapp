@@ -98,7 +98,7 @@ public class NoticeAdapter extends Adapter<ViewHolder> {
                 }
 
                 if(data.get(position).getUserWechat().getUid() != null && !data.get(position).getUserWechat().getUid().equals("")){
-                    Log.i("icon url", AppProfile.getBaseAddress + "/user/getPic/icon_" + data.get(position).getUserWechat().getUid() + ".jpg");
+//                    Log.i("icon url", AppProfile.getBaseAddress + "/user/getPic/icon_" + data.get(position).getUserWechat().getUid() + ".jpg");
                     Glide.with(context)
                             .load(AppProfile.getBaseAddress + "/user/getPic/icon_" + data.get(position).getUserWechat().getUid() + ".jpg")
                             .error(R.mipmap.avatar)
